@@ -1,0 +1,45 @@
+<html>
+<body>
+	<div id='background'>
+        <div id='gatito' style='position:absolute; top:100px; left:550px; background: url("img/abajo1.png") no-repeat; width:60px; height:50px; background-size: contain;'></div>
+    </div>
+    <script type="text/javascript">
+	    var posicionIzq = 550, posicionArriba = 100;
+
+    	function actualizar(){
+    		document.getElementById("gatito").style.left = posicionIzq+"px";
+    		document.getElementById("gatito").style.top = posicionArriba+"px";
+    	}
+
+    	document.onkeydown = function(e){
+    		console.log(e);
+    		if(e.keyCode == 37) { // Izquierda
+    			posicionIzq = posicionIzq - 10;
+    		}
+    		else if (e.keyCode == 39) { // Derecha
+    			posicionIzq = posicionIzq + 10;    		
+    		}
+    		else if (e.keyCode == 40) { // Abajo
+				posicionArriba = posicionArriba + 10;
+    		}
+			else if (e.keyCode == 38) {//arriba, lo logramos buscando el KeyCode de la flechita hacia arriba el cual es 38, luego a posicionArriba le restamos 10.
+				posicionArriba = posicionArriba -10;
+			}
+
+			posicionIzq = Math.max(0, Math.min(740, posicionIzq));  ///800 - 60 (ancho del png del gato)
+			posicionArriba = Math.max(0, Math.min(750, posicionArriba)); /// 800 - 50 (alto del png del gato)
+
+			//Al inicio lo hice utilizando IFS pero no me gustaba
+			//como quedaba, asi que buscando
+			//por internet encontre que la forma mas optima de limitar el gatito en una pantalla de 800x800 es utilizar Math.max y Math.min, optimizando el codigo y haciendolo mas legible
+			//evitando colocar muchos ifs anidados.
+
+			//Math.max devuelve el valor mayor entre los 2 parametros que envies 
+			//Math.min devuelve el valor menor entre los 2 parametros que envies
+			//
+
+    		actualizar();
+    	}
+    </script>
+</body>
+</html>

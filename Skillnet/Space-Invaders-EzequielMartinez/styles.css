@@ -1,0 +1,35 @@
+body {
+    background-color: darkblue;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+#espacio {
+    background-image: url(/img-invasores-espaciales/espacio2_.png);
+    width: 100vw;
+    height: 100vh;
+
+    position: relative
+}
+
+.jugador {
+    position: absolute;
+    background-image: url(/img-invasores-espaciales/nave2.png);
+    width: 60px;
+    height: 60px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+
+}
+
+.alien {
+    position: absolute;
+    background-image: url(/img-invasores-espaciales/alien2.png);
+    width: 60px;
+    height: 60px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+}

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style type="text/css">
+    body {
+        background-color: black;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .celda {
+        width: 50px;
+        height: 50px;
+        border: 1px solid orange;
+        display: inline-block;
+    }
+
+    .icono {
+        width: 70%;
+        height: 70%;
+        display: block;
+        margin: auto;
+        margin-top: 15%;
+        object-fit: contain;
+    }
+
+    #puntaje {
+        display: flex;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    #contenedor {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+
+<body>
+
+
+    <div id="contenedor">
+        <div id="puntaje"></div>
+        <div id="mapa"></div>
+    </div>
+
+
+    <script type="text/javascript">
+
+        //Mapa aleatorio
+        //definimos tamaño del mapa
+        //const filas = 11;
+        //const columnas = 15;
+
+        //Creamos una matriz llena de paredes usando filas x columnas
+        //let mapa = Array.from({ length: filas }, () => Array(columnas).fill(1));
+
+        //terminar despues, esta complejo hacer un generador de mapa aleatorio que TENGA sentido y caminos bien hechos.
+
+
+        //Mapa manual
+        // 1 = pared, 0 = camino , 2 = comida, 3 = gato, 4 = perro, 5 = papafrita
+        const mapa = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 3, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 0, 1],
+            [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+            [1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1],
+            [1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 1, 2, 0, 2, 1, 0, 0, 0, 2, 1],
+            [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+            [1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1],
+            [1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],
+            [1, 0, 0, 2, 0, 1, 0, 5, 0, 1, 0, 2, 0, 4, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ];
+
+        const posicionGato = { x: 1, y: 1 }; // Posición del gato, x: columna 1, y: fila 1
+
+        const posicionPerro = { x: 13, y: 9 }; // Posición del perro, x: columna 13, y: fila 9
+
+        let puntaje = 0; // inicializo el puntaje en cero
+
+        function dibujarMapa(mapa) {
+            const contenedor = document.getElementById('mapa');
+            contenedor.innerHTML = ''; // Limpiar el contenedor
+
+            mapa.forEach((fila, i) => { //creo el mapa con un foreach
+                fila.forEach((celda, j) => {
+                    const div = document.createElement('div');
+                    div.className = 'celda';
+                    if (celda === 1) {
+                        div.style.backgroundColor = 'gray'; // Pared
+                    } else if (celda === 0) {
+                        div.style.backgroundColor = 'white'; // Camino
+                    } else if (celda === 2) {
+                        div.style.backgroundColor = 'white'; // Comida
+                        const img = document.createElement('img');
+                        img.src = './img-pac-cat/burguer.png'; // Imagen de comida
+                        img.className = 'icono';//Le agrego la clase icono a los png para que aparezcan encapsulados en las celdas
+                        div.appendChild(img);
+                    }
+                    else if (celda === 3) {
+                        div.style.backgroundColor = 'white' // gato
+                        const img = document.createElement('img');
+                        img.src = './img-pac-cat/gato.gif';
+                        img.className = 'icono';
+                        div.appendChild(img);
+                    }
+                    else if (celda === 4) {
+                        div.style.backgroundColor = 'white'; // Perro
+                        const img = document.createElement('img');
+                        img.src = './img-pac-cat/perro.gif';
+                        img.className = 'icono';
+                        div.appendChild(img);
+                    }
+                    else if (celda === 5) {
+                        div.style.backgroundColor = 'white'; // Papafrita
+                        const img = document.createElement('img');
+                        img.src = './img-pac-cat/papitas.png';
+                        img.className = 'icono';
+                        div.appendChild(img);
+                    }
+                    contenedor.appendChild(div);
+                });
+                contenedor.appendChild(document.createElement('br')); // Nueva línea después de cada fila
+            });
+        }
+
+        function esComida(direccion) {
+            let nuevaX = posicionGato.x;
+            let nuevaY = posicionGato.y;
+            switch (direccion) { //En cada movimiento envio la direccion y verifica si hay comida en la celda a la que se dirige
+                case 'izquierda': nuevaX -= 1; break;
+                case 'derecha': nuevaX += 1; break;
+                case 'arriba': nuevaY -= 1; break;
+                case 'abajo': nuevaY += 1; break;
+            }
+            if (mapa[nuevaY][nuevaX] === 2) { //amborguesa (meme)
+                puntaje += 10;
+            } else if (mapa[nuevaY][nuevaX] === 5) { // papafrita
+                puntaje += 20;
+            }
+
+            //choca con el perro?
+            if (mapa[nuevaY][nuevaX] === 4) { //Choca con el perro
+                alert("GAME OVER");
+                clearInterval(perroIntervalo);
+                return;
+            }
+            document.getElementById('puntaje').innerText = `PUNTAJE: ${puntaje}`; // Actualizo el puntaje en pantalla
+
+            //return mapa[nuevaY][nuevaX] === 2; // Verifica si la celda es comida
+        }
+
+        document.onkeydown = function (e) {
+            if (e.keyCode === 37) { // Flecha izquierda
+                if (posicionGato.x > 0 && mapa[posicionGato.y][posicionGato.x - 1] != 1) {
+                    esComida('izquierda');
+                    mapa[posicionGato.y][posicionGato.x] = 0; //Limpio la celda en la que estaba borrando el gato
+                    posicionGato.x -= 1; //Muevo el gato a la izquierda
+                    mapa[posicionGato.y][posicionGato.x] = 3; // coloco la imagen del gato en la nueva celda
+                }
+
+            }
+            if (e.keyCode === 38) { //Flecha arriba
+                if (posicionGato.y > 0 && mapa[posicionGato.y - 1][posicionGato.x] != 1) {
+                    esComida('arriba')
+                    mapa[posicionGato.y][posicionGato.x] = 0;
+                    posicionGato.y -= 1;
+                    mapa[posicionGato.y][posicionGato.x] = 3;
+                }
+
+            }
+            if (e.keyCode === 39) { // Flecha derecha
+                if (posicionGato.x > 0 && mapa[posicionGato.y][posicionGato.x + 1] != 1) {
+                    esComida('derecha')
+                    mapa[posicionGato.y][posicionGato.x] = 0;
+                    posicionGato.x += 1;
+                    mapa[posicionGato.y][posicionGato.x] = 3;
+                }
+            }
+            if (e.keyCode === 40) { // Flecha abajo
+                if (posicionGato.y > 0 && mapa[posicionGato.y + 1][posicionGato.x] != 1) {
+                    esComida('abajo')
+                    mapa[posicionGato.y][posicionGato.x] = 0;
+                    posicionGato.y += 1;
+                    mapa[posicionGato.y][posicionGato.x] = 3;
+                }
+            }
+            dibujarMapa(mapa);
+        }
+
+
+        let anteriorPerro = { x: posicionPerro.x, y: posicionPerro.y }; // Guardar la posición anterior del perro
+
+        function moverEnemigo() {
+
+            const movimientos = [ //movimientos posibles del perro
+                { dx: -1, dy: 0 }, // izquierda
+                { dx: 1, dy: 0 },  // derecha
+                { dx: 0, dy: -1 }, // arriba
+                { dx: 0, dy: 1 }   // abajo
+            ];
+
+            let habiaComida = false;
+            let posComida = { x: 0, y: 0 }; // Posición de la comida si la hay
+            let tipoComida = 0;
+
+            movimientos.sort(() => Math.random() - 0.5); // Mezclar movimientos aleatoriamente
+
+            for (let dir of movimientos) {
+
+                const nuevaX = posicionPerro.x + dir.dx;
+                const nuevaY = posicionPerro.y + dir.dy;
+
+
+                if (
+                    nuevaY >= 0 && nuevaY < mapa.length &&
+                    nuevaX >= 0 && nuevaX < mapa[0].length &&
+                    mapa[nuevaY][nuevaX] !== 1 // No es pared
+                ) {
+
+                    //verificar si toca al gato
+                    if (nuevaX === posicionGato.x && nuevaY === posicionGato.y) { // si la nueva posicion coincide con la posicion del gato
+                        alert("GAME OVER");
+                        clearInterval(perroIntervalo);
+                        return;
+                    }
+
+                    //guardar la pos de la comida si la hay
+                    if (mapa[nuevaY][nuevaX] === 2 || mapa[nuevaY][nuevaX] === 5) { // si la nueva posicion es comida o papafrita
+                        habiaComida = true;
+                        posComida.y = posicionPerro.y;
+                        posComida.x = posicionPerro.x;
+                        tipoComida = mapa[nuevaY][nuevaX]; // Guardar el tipo de comida
+                    }
+
+                    mapa[posicionPerro.y][posicionPerro.x] = 0; //borramos el png
+                    posicionPerro.y = nuevaY;
+                    posicionPerro.x = nuevaX;
+                    mapa[posicionPerro.y][posicionPerro.x] = 4; //ubicamos la png del perro en la nueva posicion
+
+
+                    break;
+                }
+            }
+            if (habiaComida == true) {
+                mapa[posComida.y][posComida.x] = 2;
+                habiaComida = false; // Reiniciar la variable para el próximo movimiento
+            }
+            dibujarMapa(mapa);
+
+        }
+
+
+
+        dibujarMapa(mapa)
+        const perroIntervalo = setInterval(moverEnemigo, 500);
+
+
+    </script>
+</body>
+
+</html>
