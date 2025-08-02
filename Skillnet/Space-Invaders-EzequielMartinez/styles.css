@@ -33,3 +33,10 @@ body {
     background-size: contain;
     background-position: center;
 }
+
+.proyectil {
+    position: absolute;
+    background-color: greenyellow;
+    width: 5px;
+    height: 10px;
+}
